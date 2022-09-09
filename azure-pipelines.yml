@@ -1,0 +1,45 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: 'restore'
+    projects: 'LibraryOne.sln'
+    feedsToUse: 'select'
+    vstsFeed: '852c51fa-cabf-4f7b-b713-658aa3dfb7e3/78403b6b-5dce-409b-a555-1b0c0f8aecea'
+    includeNuGetOrg: false
+
+- task: DotNetCoreCLI@2
+  displayName: build
+  inputs:
+    command: 'build'
+    projects: 'LibraryOne.sln'
+    arguments: '--no-restore -c Release'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: 'test'
+    projects: 'LibraryOne.sln'
+
+- task: DotNetCoreCLI@2
+  displayName: Pack
+  inputs:
+    command: 'pack'
+    packagesToPack: 'LibraryOne/LibraryOne.csproj'
+    nobuild: true
+    versioningScheme: 'off'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Yeah, Push it'
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '852c51fa-cabf-4f7b-b713-658aa3dfb7e3/78403b6b-5dce-409b-a555-1b0c0f8aecea'
