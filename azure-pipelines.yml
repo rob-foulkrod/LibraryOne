@@ -1,4 +1,4 @@
-name: $(NuGetVersionV2)
+name: $(GitVersion.NuGetVersion)
 
 trigger:
 - main
@@ -7,12 +7,13 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+- checkout: self
+  fetchDepth: 0
+  
 - task: gitversion/setup@0
   inputs:
     versionSpec: '5.x'
-
 - task: gitversion/execute@0
-
 
 - task: DotNetCoreCLI@2
   displayName: Restore
@@ -42,7 +43,7 @@ steps:
     command: 'pack'
     packagesToPack: 'LibraryOne/LibraryOne.csproj'
     nobuild: true
-    versioningScheme: 'off'
+    versioningScheme: 'byBuildNumber'
 
 - task: DotNetCoreCLI@2
   displayName: 'Yeah, Push it'
